@@ -12,9 +12,9 @@ IFACE=enp1s0f1np1
 NAME=tt-dist-${ROLE}
 
 if [ "$ROLE" = "den" ]; then
-  MODEL_DIR=/home/keyspark/aeon27b/models/tt-denoiser
+  MODEL_DIR=${MODEL_DIR:-/home/keyspark/aeon27b/models/tt-denoiser}
 else
-  MODEL_DIR=/home/keyspark/aeon27b/models/tt-context
+  MODEL_DIR=${MODEL_DIR:-/home/keyspark/aeon27b/models/tt-context}
 fi
 
 # --- clear GPU (standing rule: always before any launch) ---

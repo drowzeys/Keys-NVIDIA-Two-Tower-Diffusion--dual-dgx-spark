@@ -5,7 +5,10 @@ mask-diffusion mode** — the way NVIDIA envisioned it for the diffusion base �
 **context tower on one DGX Spark and the denoiser tower on a second DGX Spark**, talking
 over a 200G RoCE fabric.
 
-> **Status: VALIDATED (2026-07-04).** Coherent end-to-end cross-node mask-diffusion:
+> **Status: v3 — 38.9 tok/s (2026-07-04).** NVFP4 expert weights + grouped Triton
+> W4A16 GEMM: cross-node diffusion now **beats the AR baseline 1.4–1.8×** on
+> generation-heavy prompts (see [v3 results](#v3-nvfp4-expert-weights--389-toks-2026-07-04)).
+> Original v1 validation:
 > **128 tokens in 72 NFE at 6.82 tok/s** (block 16, threshold 0.8, temp 0.1), context
 > tower on one Spark, denoiser on the other. Full results below. The single-Spark AR
 > baseline is published separately:
@@ -45,6 +48,41 @@ It is historic.
 The interconnect is a non-factor: per-block fabric traffic (~25 MB) transfers in
 milliseconds against 1.0–1.7 s of denoiser compute. Two Sparks over 200G behave like
 NVIDIA's intended two-GPU box for this workload.
+
+## v3: NVFP4 expert weights — 38.9 tok/s (2026-07-04)
+
+v2's analysis said the wall was expert-weight bandwidth and the fix was 4-bit experts.
+v3 implements it: **routed experts quantized to NVFP4-style W4A16** (fp4 e2m1 packed
+2/byte, fp16 block-16 scales, RTN — 5,888 matrices per tower, 35 s to quantize, tower
+shrinks 59 → 21 GB) and a **grouped Triton GEMM** that runs ALL active experts in one
+launch per projection with in-register integer-shift fp4 decode — 0.625 bytes/element
+across the bus instead of 2. Kernel: correct at T=3/16/200 (rel err ≤ 6e-3), **3.59×**
+vs the bf16 fast-MoE loop. (We evaluated the community `syscall42/nemotron-twotower-nvfp4`
+checkpoint first and rejected it: its card admits the ModelOpt export had defective
+routed-expert scales and only the *context* tower was repaired — the denoiser, the tower
+that matters for diffusion, was not.)
+
+| Request | Diffusion 2-Spark tok/s (NFE) | AR 1-Spark tok/s | Diffusion/AR |
+|---|---|---|---|
+| bench256 | **38.85** (66) | 21.59 | **1.80×** |
+| bench128 | **28.29** (52) | 20.92 | **1.35×** |
+| eval-japan | 15.83 (76) | 20.19 | 0.78× |
+| eval-train | 17.81 (62) | 20.47 | 0.87× |
+| eval-colors | 15.34 (73) | 20.42 | 0.75× |
+| eval-france | 17.33 (66) | 20.29 | 0.85× |
+| eval-boil | 16.42 (71) | 20.43 | 0.80× |
+
+**All 5 evals remain correct in both modes** after 4-bit RTN quantization, with NFE
+counts unchanged vs bf16 — the diffusion process is insensitive to expert quantization
+noise at this scale. Full texts in [`data/nvfp4_results.json`](data/nvfp4_results.json).
+
+The trajectory on the flagship benchmark: **6.82 → 11.2 → 38.85 tok/s (5.7×)** across
+v1 (first cross-node validation), v2 (fast-MoE + compile), v3 (NVFP4 experts). As
+predicted by the v2 bandwidth analysis, cutting bytes-per-NFE moved diffusion from
+losing to AR to **beating it 1.4–1.8× on generation-heavy prompts** — the NVIDIA
+two-tower speedup thesis, reproduced on two $4K Sparks instead of two H100s. Eval-style
+prompts (harder continuations, ~1.3 tok/NFE) still favor AR; the breakeven is now
+~1.5 tokens/NFE and typical prose sits right around it.
 
 ## Optimized results (v2, 2026-07-04)
 

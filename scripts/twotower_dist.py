@@ -285,18 +285,28 @@ def load_model(args, device, fast_moe=True, compile_kernels=False):
                       "t_block.", "scale_shift_tables."))
     idx = json.load(open(Path(args.model) / "model.safetensors.index.json"))
     weight_map = idx["weight_map"]
-    sd = {}
+    sd, qsd = {}, {}
     t0 = time.perf_counter()
     for shard in sorted(set(weight_map.values())):
         with safe_open(Path(args.model) / shard, framework="pt",
                        device=device) as f:
             for k in f.keys():
-                if k.startswith(prefixes):
+                if not k.startswith(prefixes):
+                    continue
+                if k.endswith((".qweight", ".scales")):
+                    qsd[k] = f.get_tensor(k)
+                else:
                     sd[k] = f.get_tensor(k)
     missing, unexpected = model.load_state_dict(sd, strict=False, assign=True)
-    bad = [k for k in missing if k.startswith(prefixes)]
+    bad = [k for k in missing if k.startswith(prefixes)
+           and k.replace(".weight", ".qweight") not in qsd]
     assert not bad, f"missing keys for this tower: {bad[:5]}"
     assert not unexpected, f"unexpected keys: {unexpected[:5]}"
+    if qsd:
+        from tt_nvfp4 import attach_quant_experts
+        tower_name = ("context_tower" if args.role == "ctx"
+                      else "denoiser_tower")
+        attach_quant_experts(model, [tower_name], qsd, cfg, device)
     tower = model.context_tower if args.role == "ctx" else model.denoiser_tower
     metas = [n for n, p in tower.named_parameters() if p.device.type == "meta"]
     assert not metas, f"still-meta params: {metas[:5]}"

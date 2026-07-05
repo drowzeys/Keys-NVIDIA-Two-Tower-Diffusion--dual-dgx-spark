@@ -1,0 +1,150 @@
+{
+ "mask_diffusion_cross_node_nvfp4": [
+  {
+   "tag": "warmup",
+   "prompt": "France is a country ",
+   "tokens": 32,
+   "nfe": 32,
+   "prefill_s": 2.52,
+   "gen_s": 16.636,
+   "tok_s": 1.92,
+   "text": "\nwith a rich history and a very diverse culture. \nIt is a country that has been influenced by \nmany different cultures over the centuries. "
+  },
+  {
+   "tag": "bench256",
+   "prompt": "France is a country ",
+   "tokens": 256,
+   "nfe": 66,
+   "prefill_s": 0.42,
+   "gen_s": 6.59,
+   "tok_s": 38.85,
+   "text": "\nwith a lot of history. \nIt has a lot of culture. \nIt has a lot of food. \nIt has a lot of wine. \nIt has a lot of cheese. \nIt has a lot of bread. \nIt has a lot of butter. \nIt has a lot of chocolate. \nIt has a lot of coffee. \nIt has a lot of tea. \nIt has a lot of beer. \nIt has a lot of spirits. \nIt has a lot of cars. \nIt has a lot of planes. \nIt has a lot of trains. \nIt has a lot of ships. \nIt has a lot of buses. \nIt has a lot of cars. \nIt has a lot of planes. \nIt has a lot of trains. \nIt has a lot of ships. \nIt has a lot of buses. \nIt has a lot of cars. \nIt has a lot of planes. \nIt has a lot of trains. \nIt has a lot of ships. \nIt has a lot of buses. \nIt has a lot of cars. \nIt has a lot"
+  },
+  {
+   "tag": "bench128",
+   "prompt": "France is a country ",
+   "tokens": 128,
+   "nfe": 52,
+   "prefill_s": 0.407,
+   "gen_s": 4.525,
+   "tok_s": 28.29,
+   "text": "\nwith a lot of history. \nIt has a lot of culture. \nIt has a lot of food. \nIt has a lot of wine. \nIt has a lot of cheese. \nIt has a lot of bread. \nIt has a lot of butter. \nIt has a lot of chocolate. \nIt has a lot of coffee. \nIt has a lot of tea. \nIt has a lot of beer. \nIt has a lot of spirits. \nIt has a lot of cars. \nIt has a lot of planes. \nIt has"
+  },
+  {
+   "tag": "eval-japan",
+   "prompt": "The capital of Japan is",
+   "tokens": 96,
+   "nfe": 76,
+   "prefill_s": 0.405,
+   "gen_s": 6.063,
+   "tok_s": 15.83,
+   "text": " Tokyo, which is also the largest city in the country. Tokyo is a major global city and serves as the political, economic, and cultural center of Japan. It is known for its modern skyscrapers, vibrant neighborhoods, and rich history. Tokyo is home to iconic landmarks such as the Tokyo Skytree, the Imperial Palace, and the bustling Shibuya Crossing. The city is also famous for its diverse culinary scene, extensive shopping districts, and efficient"
+  },
+  {
+   "tag": "eval-train",
+   "prompt": "Q: A train travels 60 miles per hour for 2.5 hours. How far does it travel?\nA:",
+   "tokens": 96,
+   "nfe": 62,
+   "prefill_s": 0.466,
+   "gen_s": 5.391,
+   "tok_s": 17.81,
+   "text": " Distance = Speed \u00d7 Time = 60 mph \u00d7 2.5 hours = 150 miles.\n\nQ: A factory produces 300 units in 5 hours. How many units does it produce per hour?\nA: Production rate = Total units / Time = 300 units / 5 hours = 60 units per hour.\n\nQ: A recipe requires 2 cups of flour for 4 servings. How much flour is needed for"
+  },
+  {
+   "tag": "eval-colors",
+   "prompt": "The three primary colors are",
+   "tokens": 96,
+   "nfe": 73,
+   "prefill_s": 0.429,
+   "gen_s": 6.257,
+   "tok_s": 15.34,
+   "text": " red, green, and blue. These colors are fundamental because they can be combined in various ways to produce a wide range of other colors. This concept is crucial in fields like art and design, where understanding color mixing is essential.\n\n**Interviewer:** Interesting! Now, let's talk about the area of a circle. How is it calculated?\n\n**Subject Matter Expert:** The area \\( A \\) of a circle is calculated using the formula \\( A = \\pi r^"
+  },
+  {
+   "tag": "eval-france",
+   "prompt": "The largest city in France is",
+   "tokens": 96,
+   "nfe": 66,
+   "prefill_s": 0.397,
+   "gen_s": 5.54,
+   "tok_s": 17.33,
+   "text": " Paris, with a population of over 2.2 million people. It is the capital of France and is known for its iconic landmarks such as the Eiffel Tower, Louvre Museum, and Notre-Dame Cathedral. Paris is also a major cultural and economic hub, attracting millions of tourists each year.\n\nWhat is the largest city in France?\n\nThe largest city in France is Paris, with a population of over 2.2 million people. It is the capital of France and is"
+  },
+  {
+   "tag": "eval-boil",
+   "prompt": "At sea level, water boils at a temperature of",
+   "tokens": 96,
+   "nfe": 71,
+   "prefill_s": 0.404,
+   "gen_s": 5.848,
+   "tok_s": 16.42,
+   "text": " 100\u00b0C (212\u00b0F). However, as you ascend to higher altitudes, the atmospheric pressure decreases, causing the boiling point of water to drop. This phenomenon is due to the reduced pressure exerted by the air above the water, which makes it easier for water molecules to escape into the atmosphere.\n\nFor instance, at an altitude of 1,000 meters (approximately 3,280 feet), the boiling point of water is around "
+  }
+ ],
+ "ar_baseline_nvfp4": [
+  {
+   "tag": "warmup",
+   "tokens": 32,
+   "gen_s": 3.566,
+   "tok_s": 8.97,
+   "text": "100% dependent on nuclear energy. It is the only country in the world to have such a high percentage of nuclear energy in its energy mix. This"
+  },
+  {
+   "tag": "bench256",
+   "tokens": 256,
+   "gen_s": 11.857,
+   "tok_s": 21.59,
+   "text": "100% committed to the fight against climate change. It is the first country in the world to ban the sale of petrol and diesel cars by 2040. It is also the first country to ban the use of palm oil in biofuels. France is also the first country to ban the use of plastic bags in supermarkets. France is also the first country to ban the use of plastic straws in restaurants. France is also the first country to ban the use of plastic cups in restaurants. France is also the first country to ban the use of plastic cutlery in restaurants. France is also the first country to ban the use of plastic plates in restaurants. France is also the first country to ban the use of plastic bottles in restaurants. France is also the first country to ban the use of plastic bags in restaurants. France is also the first country to ban the use of plastic straws in restaurants. France is also the first country to ban the use of plastic cups in restaurants. France is also the first country to ban the use of plastic cutlery in restaurants. France is also the first country to ban the use of plastic plates in restaurants. France is also the first country to ban the use of plastic bottles in restaurants. France is"
+  },
+  {
+   "tag": "bench128",
+   "tokens": 128,
+   "gen_s": 6.119,
+   "tok_s": 20.92,
+   "text": "100% dependent on nuclear energy. It is the only country in the world to have a nuclear energy policy. The French nuclear industry is the largest in the world. It is the only country in the world to have a nuclear energy policy. The French nuclear industry is the largest in the world. The French nuclear industry is the largest in the world. The French nuclear industry is the largest in the world. The French nuclear industry is the largest in the world. The French nuclear industry is the largest in the world. The French nuclear industry is the largest in the world. The French nuclear industry is the largest in the world. The"
+  },
+  {
+   "tag": "eval-japan",
+   "tokens": 96,
+   "gen_s": 4.756,
+   "tok_s": 20.19,
+   "text": " Tokyo, which is also the largest city in the country. Tokyo is a bustling metropolis known for its modern architecture, vibrant culture, and rich history. It is a major global city and a hub for business, technology, and entertainment.\n\nSource: AI generated by FAQ.net\n\nWhat is the capital of Japan?\n\nThe capital of Japan is Tokyo. It is the largest city in Japan and serves as the country's political, economic, and cultural center. Tokyo is known for"
+  },
+  {
+   "tag": "eval-train",
+   "tokens": 96,
+   "gen_s": 4.69,
+   "tok_s": 20.47,
+   "text": " Distance = Speed \u00d7 Time = 60 mph \u00d7 2.5 hours = 150 miles.\n\nQ: A recipe calls for 3 cups of flour for every 2 cups of sugar. If you have 9 cups of flour, how much sugar do you need?\nA: Set up the proportion: 3/2 = 9/x. Cross-multiply: 3x = 18. Solve for x: x = 6"
+  },
+  {
+   "tag": "eval-colors",
+   "tokens": 96,
+   "gen_s": 4.702,
+   "tok_s": 20.42,
+   "text": " red, blue, and yellow. These colors cannot be created by mixing other colors together. All other colors are created by mixing these three primary colors in various combinations.\n\nWhat are the secondary colors?\n\nThe secondary colors are orange, green, and purple. These colors are created by mixing two primary colors together. For example, orange is created by mixing red and yellow, green is created by mixing blue and yellow, and purple is created by mixing red and blue.\n\nWhat are the tertiary"
+  },
+  {
+   "tag": "eval-france",
+   "tokens": 96,
+   "gen_s": 4.732,
+   "tok_s": 20.29,
+   "text": " Paris, which is also the capital. Other major cities include Marseille, Lyon, Toulouse, and Nice.\n\nWhat is the official language of France?\n\nThe official language of France is French. It is spoken by the majority of the population and is used in government, education, and media.\n\nWhat is the currency of France?\n\nThe currency of France is the Euro (\u20ac). It is used throughout the country and is the official currency of the European Union.\n\nWhat is the climate like in"
+  },
+  {
+   "tag": "eval-boil",
+   "tokens": 96,
+   "gen_s": 4.699,
+   "tok_s": 20.43,
+   "text": " 100\u00b0C. However, as altitude increases, the boiling point of water decreases. This is because the atmospheric pressure decreases with altitude, and the boiling point of a liquid is directly related to the atmospheric pressure. At higher altitudes, the lower atmospheric pressure means that water molecules require less energy to escape into the gas phase, resulting in a lower boiling point.\n\n## Step 2: Consider the effect of altitude on cooking\nWhen cooking at higher altitudes, the lower boiling point"
+  }
+ ],
+ "kernel": {
+  "grouped_w4a16_vs_bf16_fastmoe_speedup": 3.59,
+  "quant": "RTN fp4 e2m1, fp16 block-16 scales, experts only (5888 mats/tower)",
+  "tower_size_gb": {
+   "bf16": 59,
+   "nvfp4_experts": 21
+  }
+ }
+}
