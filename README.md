@@ -46,6 +46,30 @@ The interconnect is a non-factor: per-block fabric traffic (~25 MB) transfers in
 milliseconds against 1.0–1.7 s of denoiser compute. Two Sparks over 200G behave like
 NVIDIA's intended two-GPU box for this workload.
 
+### vs the like-for-like AR baseline (same stack, same hardware)
+
+`--mode ar` runs the context tower alone, single node, through the *same* HF-eager
+torch path (one token per forward):
+
+| Mode | tok/s | Forwards for 128 tok | Output |
+|---|---|---|---|
+| Cross-node two-tower mask-diffusion (2 Sparks) | 6.82 | **72 NFE** | coherent |
+| Context-tower AR, single Spark, same eager stack | 7.39 | 128 | coherent (Fukushima/nuclear-policy prose) |
+
+Honest read: **parity (0.92×), not NVIDIA's 2.42×** — on this unoptimized HF-eager
+stack a 16-token denoiser forward costs ~1.9× a single-token decode, and per-block
+context-extension is serialized with denoising. The NFE win (72 vs 128) is real and
+reproduced; converting it into wall-clock speedup on GB10 needs the standard inference
+optimizations (torch.compile/CUDA graphs, overlapping context extension with the next
+block's early NFEs, fp32→bf16 scan where safe). That is the optimization runway, and
+exactly where NVIDIA's H100 Megatron numbers come from.
+
+Bonus result: this AR run is (to our knowledge) the **first coherent HF-Transformers
+output from this model on GB10** — proving the historical "garbage output" was entirely
+the compiled `causal_conv1d`/`mamba_ssm` sm_121a kernels, not the HF code path itself.
+Remove the packages, fix the one list-indexing bug, and eager transformers is correct
+on sm_121a.
+
 ## Why two Sparks
 
 NVIDIA's reference implementation is one process with two ~80 GB GPUs:
