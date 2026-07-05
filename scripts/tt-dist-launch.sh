@@ -1,13 +1,13 @@
 #!/bin/bash
 # Cross-node two-tower diffusion launcher. Run on BOTH nodes:
-#   node .4 (den):  ROLE=den ~/tt-dist/tt-dist-launch.sh [extra args]
-#   node .3 (ctx):  ROLE=ctx ~/tt-dist/tt-dist-launch.sh [extra args]
+#   node r0 (den):  ROLE=den ~/tt-dist/tt-dist-launch.sh [extra args]
+#   node r3 (ctx):  ROLE=ctx ~/tt-dist/tt-dist-launch.sh [extra args]
 # Start den first (hosts the rendezvous), then ctx.
 set -euo pipefail
 
 ROLE=${ROLE:?set ROLE=ctx|den}
 IMG=ghcr.io/aeon-7/aeon-vllm-ultimate:latest
-MASTER=10.100.10.4
+MASTER=r0
 IFACE=enp1s0f1np1
 NAME=tt-dist-${ROLE}
 

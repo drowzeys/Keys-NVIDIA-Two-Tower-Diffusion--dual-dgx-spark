@@ -5,8 +5,8 @@ NVIDIA's reference runs the two towers on two GPUs in one process
 (place_towers_on_devices('cuda:0','cuda:1')). Here each tower runs on its own
 DGX Spark (GB10), talking over the 200G fabric via torch.distributed (gloo):
 
-  rank 0 = denoiser tower  (node .4, ~/aeon27b/models/tt-denoiser)
-  rank 1 = context tower   (node .3, ~/aeon27b/models/tt-context)
+  rank 0 = denoiser tower  (node r0, ~/aeon27b/models/tt-denoiser)
+  rank 1 = context tower   (node r3, ~/aeon27b/models/tt-context)
 
 v2: multi-request serve loop (one weight-load amortizes a whole bench+eval
 suite), fast-MoE patch (single sync instead of 128 per layer), optional
@@ -46,7 +46,7 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--role", choices=["ctx", "den"], required=True)
     p.add_argument("--model", required=True, help="tower checkpoint dir")
-    p.add_argument("--master", default="10.100.10.4")
+    p.add_argument("--master", default="r0")
     p.add_argument("--port", type=int, default=29613)
     p.add_argument("--prompt", default="France is a country ")
     p.add_argument("--prompt-file", default=None,

@@ -4,7 +4,7 @@
 The distributed runner split the towers across .3/.4 because bf16 towers were
 59 GB each. NVFP4 quantization dropped each to ~21 GB, so both now fit on one
 GPU (42 GB weights + caches) — this is the node-plan unlock that frees a node
-and lets TwoTower co-reside with another serve (e.g. Nemotron-Omni) on .3.
+and lets TwoTower co-reside with another serve (e.g. Nemotron-Omni) on r3.
 
 Loads context_tower.* from tt-context-nvfp4 and denoiser_tower.*/heads from
 tt-denoiser-nvfp4 into a single NemotronHTwoTowerForCausalLM, attaches grouped
