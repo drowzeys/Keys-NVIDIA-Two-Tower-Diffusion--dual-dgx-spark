@@ -49,6 +49,29 @@ executing on the one GB10 simultaneously, peak ~99 GB of 121 GB.
 serves a second model on the same box at the same time.** The freed Spark is no longer a
 requirement — it's now available for a different tier entirely.
 
+### Single-GPU vs dual-GPU vs AR — same-session numbers (2026-07-05, 256 tok)
+
+Consolidating to one GPU is a **resource** win, not a **speed** win — measured directly, no
+cited estimates:
+
+| Deployment | Method | Prompt | tok/s |
+|---|---|---|--:|
+| **Dual-GPU (2 Sparks)** | mask-diffusion | gen-heavy `bench256` | **38.85** |
+| Single-GPU (1 Spark) | mask-diffusion | gen-heavy `bench256` | 28.98 |
+| Single-GPU (1 Spark) | mask-diffusion | coherent generation | 15.1–17.9 |
+| Single-GPU (1 Spark) | **AR-simulated** | gen-heavy | 18.44 |
+| Single-GPU (1 Spark) | AR-simulated | coherent generation | 21.50 |
+
+- **For speed, pick two GPUs.** Dual-GPU (38.85) beats single-GPU diffusion (28.98) by ~34% —
+  the two towers run their forwards **in parallel**; on one GPU that compute **serializes**, and
+  dropping the fabric copies doesn't buy the parallelism back. (Co-residency isn't the cause:
+  single-GPU standalone 28.98 ≈ co-resident-with-Omni 29.54.)
+- **For resource conservation, pick one GPU running the _true_ diffusion tower** — on gen-heavy
+  work it does **1.57× the AR-simulated single-GPU baseline (28.98 vs 18.44)** *and* frees a whole
+  node. On short/eval prompts the AR variant is competitive (21.5 vs ~16); the crossover is
+  NFE-dependent, so diffusion pulls ahead as generation gets longer/gen-heavier. See the companion
+  [single-GPU AR-simulated repo](https://github.com/drowzeys/Keys-NVIDIA--Simulated-1-GPU-Spark-Two-Tower--AR-).
+
 ### Recipe (single-node)
 
 ```bash
