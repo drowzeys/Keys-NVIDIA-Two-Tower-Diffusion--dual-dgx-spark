@@ -45,6 +45,7 @@ docker run -d --name ${NAME} --network host --ipc host --gpus all \
   -v /home/keyspark/tt-dist:/work:ro \
   -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 \
   -e GLOO_SOCKET_IFNAME=${IFACE} \
+  -e COMPILE=${COMPILE:-1} \
   --entrypoint python3 \
   ${IMG} \
   /work/twotower_dist.py --role ${ROLE} --model /model --master ${MASTER} "$@"

@@ -46,7 +46,43 @@ The interconnect is a non-factor: per-block fabric traffic (~25 MB) transfers in
 milliseconds against 1.0–1.7 s of denoiser compute. Two Sparks over 200G behave like
 NVIDIA's intended two-GPU box for this workload.
 
-### vs the like-for-like AR baseline (same stack, same hardware)
+## Optimized results (v2, 2026-07-04)
+
+Round 2 implemented the optimization runway: **fast-MoE** (the HF MoE looped over all
+128 experts with a GPU sync each — 80% of NFE time; replaced with a single-sync
+active-expert loop, **bit-exact**, max logit diff 0.0), **torch.compile** on the block
+kernels (the 16-step SSD scan unrolls into fused kernels; 8 s warmup), **per-layer
+streamed context-extension deltas**, and a **multi-request serve loop** (one 6-min
+weight load runs a whole suite). Profile: **174.5 → 103.5 ms/NFE (1.67×)**; before
+breakdown was MoE 140.3 / mamba 30.0 / attention 1.8 / other 11.5 ms.
+
+Optimized-vs-optimized (AR baseline re-run with the same fast-MoE stack), temp 0.1,
+conf 0.8 (full texts + numbers in [`data/optimized_results.json`](data/optimized_results.json)):
+
+| Request | Diffusion 2-Spark tok/s (NFE) | AR 1-Spark tok/s | Diffusion/AR |
+|---|---|---|---|
+| bench256 | 11.20 (132) | 16.98 | 0.66× |
+| bench128 | **24.19** (31) | 16.44 | **1.47×** |
+| eval-japan | 7.35 (78) | 16.14 | 0.46× |
+| eval-train | 10.02 (52) | 15.80 | 0.63× |
+| eval-colors | 7.00 (80) | 16.02 | 0.44× |
+| eval-france | 8.56 (66) | 16.06 | 0.53× |
+| eval-boil | 8.10 (71) | 15.92 | 0.51× |
+
+**Quality: both modes passed all 5 evals** (Tokyo; 60 mph × 2.5 h = 150 miles; RGB
+primaries; Paris + population; 100 °C/212 °F with correct altitude physics).
+
+**The GB10 finding:** diffusion beats AR only when confidence-unmasking converges fast
+(bench128 hit 4.1 tokens/NFE → 1.47×). At typical 1.2–1.9 tokens/NFE it loses, because
+on GB10 a 16-token denoiser NFE costs ~1.7× an AR step: each NFE activates ~60–90
+*unique* experts per MoE layer (~30 GB of weight reads against the GB10's ~273 GB/s
+memory bandwidth), while an AR step touches only 6 per layer. NVIDIA's 2.42× comes
+from H100-class bandwidth (3.3 TB/s), where a 16-token NFE costs barely more than a
+1-token step. **Block-diffusion MoE speedup is a memory-bandwidth play, and GB10 sits
+below the breakeven (~2.0 tokens/NFE here).** The 30 tok/s+ path on Spark hardware
+would need quantized (NVFP4) expert weights to cut bytes-per-NFE ~4×.
+
+### v1 (first validation) vs the like-for-like AR baseline (same stack, same hardware)
 
 `--mode ar` runs the context tower alone, single node, through the *same* HF-eager
 torch path (one token per forward):

@@ -1,0 +1,8 @@
+{"text": "France is a country ", "max_new_tokens": 32, "tag": "warmup"}
+{"text": "France is a country ", "max_new_tokens": 256, "tag": "bench256"}
+{"text": "France is a country ", "max_new_tokens": 128, "tag": "bench128"}
+{"text": "The capital of Japan is", "max_new_tokens": 96, "tag": "eval-japan"}
+{"text": "Q: A train travels 60 miles per hour for 2.5 hours. How far does it travel?\nA:", "max_new_tokens": 96, "tag": "eval-train"}
+{"text": "The three primary colors are", "max_new_tokens": 96, "tag": "eval-colors"}
+{"text": "The largest city in France is", "max_new_tokens": 96, "tag": "eval-france"}
+{"text": "At sea level, water boils at a temperature of", "max_new_tokens": 96, "tag": "eval-boil"}
