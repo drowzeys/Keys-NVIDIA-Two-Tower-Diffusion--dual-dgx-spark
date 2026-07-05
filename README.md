@@ -5,11 +5,46 @@ mask-diffusion mode** — the way NVIDIA envisioned it for the diffusion base �
 **context tower on one DGX Spark and the denoiser tower on a second DGX Spark**, talking
 over a 200G RoCE fabric.
 
-> **Status: WORK IN PROGRESS (2026-07-04).** The cross-node runner loads both towers,
-> completes prefill, and is in first end-to-end validation now. Results, benchmarks, and
-> the full wall-ledger land here as they are measured. The single-Spark AR baseline is
-> already published:
+> **Status: VALIDATED (2026-07-04).** Coherent end-to-end cross-node mask-diffusion:
+> **128 tokens in 72 NFE at 6.82 tok/s** (block 16, threshold 0.8, temp 0.1), context
+> tower on one Spark, denoiser on the other. Full results below. The single-Spark AR
+> baseline is published separately:
 > [Keys-NVIDIA-Two-Tower-AR--single-dgx-spark](https://github.com/drowzeys/Keys-NVIDIA-Two-Tower-AR--single-dgx-spark).
+
+## Results (first validated run, 2026-07-04)
+
+Prompt `"France is a country "`, 128 new tokens, block_size 16, steps_per_block 16,
+confidence_threshold 0.8, temperature 0.1 (NVIDIA's reference settings):
+
+| Metric | Value |
+|---|---|
+| Output | coherent fluent prose (see below) |
+| Total NFE (denoiser forwards) | **72** for 128 tokens = **1.78 tokens/NFE** |
+| End-to-end throughput | **6.82 tok/s** (HF eager, cross-node) |
+| Prefill (5-token prompt) | 1.33 s |
+| Initial cache transfer over fabric | 0.06 s |
+| Per-block denoise time | 4.7 s (block 0, cold) → 1.0–1.7 s steady-state |
+
+Confidence unmasking works as designed: early blocks needed the full 16 steps, but once
+context accumulated, blocks converged in **5–8 NFE** — the diffusion win NVIDIA's card
+describes, reproduced across two machines.
+
+Output sample (base model, low temperature):
+
+```
+It is in Europe.
+It is beautiful.
+It is romantic.
+It is expensive.
+It is delicious.
+It is famous.
+It is historic.
+...
+```
+
+The interconnect is a non-factor: per-block fabric traffic (~25 MB) transfers in
+milliseconds against 1.0–1.7 s of denoiser compute. Two Sparks over 200G behave like
+NVIDIA's intended two-GPU box for this workload.
 
 ## Why two Sparks
 

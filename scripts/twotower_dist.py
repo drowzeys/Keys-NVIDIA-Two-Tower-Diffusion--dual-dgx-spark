@@ -56,6 +56,9 @@ def parse_args():
     p.add_argument("--mask-token-id", type=int, default=3)
     p.add_argument("--temperature", type=float, default=0.0)
     p.add_argument("--confidence-threshold", type=float, default=0.9)
+    p.add_argument("--mode", choices=["mask_diffusion", "ar"],
+                   default="mask_diffusion",
+                   help="ar = single-node context-tower AR baseline (no dist)")
     p.add_argument("--verbose", action="store_true")
     return p.parse_args()
 
@@ -422,10 +425,41 @@ def run_context(model, cfg, args, device):
           f"conf: {args.confidence_threshold}  temp: {args.temperature}")
 
 
+def run_context_ar(model, cfg, args, device):
+    """Single-node context-tower AR baseline on the SAME eager path
+    (fair speed comparison for the cross-node diffusion mode)."""
+    from transformers import AutoTokenizer
+    tok = AutoTokenizer.from_pretrained(args.model)
+    ids = tok(args.prompt, return_tensors="pt").input_ids.to(device)
+    S = ids.shape[1]
+    print(f"[ar] prompt: {S} tokens; generating {args.max_new_tokens}...",
+          flush=True)
+    t0 = time.perf_counter()
+    out = model.generate_ar(ids, max_new_tokens=args.max_new_tokens,
+                            temperature=args.temperature,
+                            eos_token_id=tok.eos_token_id)
+    elapsed = time.perf_counter() - t0
+    gen_ids = out[0, S:]
+    n_new = int(gen_ids.shape[0])
+    print("\n" + "=" * 70)
+    print("Context-tower AR baseline (single node, HF eager)")
+    print("=" * 70)
+    print(f"Prompt: {args.prompt}")
+    print(f"Generated ({n_new} tokens, {elapsed:.2f}s, "
+          f"{n_new / elapsed:.2f} tok/s):")
+    print(tok.decode(gen_ids, skip_special_tokens=True))
+    print("=" * 70)
+
+
 def main():
     args = parse_args()
     device = "cuda:0"
     torch.set_grad_enabled(False)
+    if args.mode == "ar":
+        assert args.role == "ctx", "--mode ar runs on the context node"
+        model, cfg, _ = load_model(args, device)
+        run_context_ar(model, cfg, args, device)
+        return
     rank = CTX_RANK if args.role == "ctx" else DEN_RANK
     dist.init_process_group(
         "gloo", init_method=f"tcp://{args.master}:{args.port}",
